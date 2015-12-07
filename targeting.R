@@ -1,6 +1,6 @@
 library(XML)
 
-game_index <- function(year = 2014){
+game_index <- function(year){
   # Get the page's source
   url <- paste0("http://www.pro-football-reference.com/years/",year,"/games.htm")
   web_page <- readLines(url)
@@ -18,7 +18,7 @@ game_index <- function(year = 2014){
   return(playindex)
 }
 
-for (year in 1994:2015) {
+for (year in startyear:endyear) {
   # get all play indexes for current year
   gamelist <- game_index(year)
   
@@ -31,8 +31,18 @@ for (year in 1994:2015) {
     
     #load home team roster
     setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
-    file <- paste0(toupper(substr(game, nchar(game)-2, nchar(game))), "_", 
-                   year, "_roster.RData")
+    home <- toupper(substr(game, nchar(game)-2, nchar(game)))
+    home <- ifelse (home %in% c("HOU", "IND") && year %in% c("1994"), 
+                    if (home == "HOU") {
+                      home <- "OTI"
+                    } else {
+                      home <- "CLT"
+                    }, home)
+    
+    #file <- paste0(toupper(substr(game, nchar(game)-2, nchar(game))), "_", 
+                   #year, "_roster.RData")
+    file <- paste0(home, "_", year, "_roster.Rdata")
+    
     load(file)
     roster <- playerMat
     rm(playerMat, file)
@@ -55,13 +65,31 @@ for (year in 1994:2015) {
     df <- tables[[which(flag==1)]]
     finaltab <- df[which(df[,1]!=""),c(1,2,13,14,15)]
     
+    # Check to make sure there are no data errors
+    if (all(finaltab[, 3]=="")) {
+      print(paste("Game ID:", game, "has been dropped from the analysis."))
+      
+      # clean up for the next iteration
+      rm(game, roster, url, tornados, tables, n, flag, names, j, df, finaltab)
+      
+      next
+    }
+    
     #remove QBs
     finaltab <- finaltab[which(finaltab[,3]!=""),]
     colnames(finaltab)[1] <- "Name"
     
     #load away team roster
-    file <- paste0(finaltab[1,2], "_", 
-                   year, "_roster.RData")
+    away <- finaltab[1,2]
+    away <- ifelse (away %in% c("HOU", "IND") && year %in% c("1994"), 
+                    if (away == "HOU") {
+                      away <- "OTI"
+                    } else {
+                      away <- "CLT"
+                    }, away)
+    
+    file <- paste0(away, "_", year, "_roster.Rdata")
+    
     load(file)
     roster <- rbind(playerMat, roster)
     colnames(roster) <- c("Pos", "Name")
