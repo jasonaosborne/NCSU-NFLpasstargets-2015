@@ -32,11 +32,25 @@ for (year in startyear:endyear) {
     #load home team roster
     setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
     home <- toupper(substr(game, nchar(game)-2, nchar(game)))
-    home <- ifelse (home %in% c("HOU", "IND") && year %in% c("1994"), 
-                    if (home == "HOU") {
+    home <- ifelse (home %in% c("HOU", "IND", "ARI", "STL", "OAK", "BAL", "TEN"),
+                    if (home == "HOU" && year<2002) {
+                      home <- "OTI"
+                    } else if (home == "HOU" && year >= 2002) {
+                      home <- "HTX"
+                    } else if (home == "ARI") {
+                      home <- "CRD"
+                    } else if (home == "IND") { 
+                      home <- "CLT"
+                    } else if (home == "STL") {
+                      home <- "RAM"
+                    } else if (home == "OAK") {
+                      home <- "RAI"
+                    } else if (home == "BAL") {
+                      home <- "RAV"
+                    } else if (home == "TEN") {
                       home <- "OTI"
                     } else {
-                      home <- "CLT"
+                      home <- home
                     }, home)
     
     #file <- paste0(toupper(substr(game, nchar(game)-2, nchar(game))), "_", 
@@ -81,12 +95,32 @@ for (year in startyear:endyear) {
     
     #load away team roster
     away <- finaltab[1,2]
-    away <- ifelse (away %in% c("HOU", "IND") && year %in% c("1994"), 
-                    if (away == "HOU") {
+    away <- ifelse (away %in% c("HOU", "IND", "ARI", "STL", "OAK", "BAL", "TEN"),
+                    if (away == "HOU" && year<2002) {
+                      away <- "OTI"
+                    } else if (away == "HOU" && year >= 2002) {
+                      away <- "HTX"
+                    } else if (away == "ARI") {
+                      away <- "CRD"
+                    } else if (away == "IND") { 
+                      away <- "CLT"
+                    } else if (away == "STL") {
+                      away <- "RAM"
+                    } else if (away == "OAK") {
+                      away <- "RAI"
+                    } else if (away == "BAL") {
+                      away <- "RAV"
+                    } else if (away == "TEN") {
                       away <- "OTI"
                     } else {
-                      away <- "CLT"
+                      away <- away
                     }, away)
+    #away <- ifelse (away %in% c("HOU", "IND") && year %in% c("1994"), 
+     #               if (away == "HOU") {
+      #                away <- "OTI"
+       #             } else {
+        #              away <- "CLT"
+         #           }, away)
     
     file <- paste0(away, "_", year, "_roster.Rdata")
     
