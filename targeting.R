@@ -77,7 +77,14 @@ for (year in startyear:endyear) {
     
     #create table with players only from the pass/rush/rec table
     df <- tables[[which(flag==1)]]
-    finaltab <- df[which(df[,1]!=""),c(1,2,13,14,15)]
+    # get only tgts, rec, yds...
+    titles<-colnames(df)
+    use <- which(test=='Tgt')
+    if (prod(titles[use:(use+2)]!=c('Tgt','Rec','Yds'))) {
+      stop('incorrectcols')
+    }
+    # create the final table
+    finaltab <- df[which(df[,1]!=""),c(1,2,use:(use+2))]
     
     # Check to make sure there are no data errors
     if (all(finaltab[, 3]=="")) {

@@ -70,7 +70,8 @@ setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
         playerMat[i, 2] <- strsplit(strsplit(playersrc[find.name], "<title>")[[1]][2],
                                     " NFL Football")[[1]][1]
       }
-      
+      # make sure the players are unique for that year
+      playerMat <- unique(playerMat)
       table(playerMat[, 1], useNA="ifany")
       
       output <- paste0(toupper(team),"_", year, "_roster.RData")
