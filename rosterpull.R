@@ -1,4 +1,7 @@
-setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
+# setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
+setwd("S:/Desktop/GitHub/NCSU-NFLpasstargets-2015/Rosters")
+
+startyear <- 1994;  endyear <- 2014
   
   for(year in startyear:endyear) {
     
@@ -72,12 +75,14 @@ setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
       }
       # make sure the players are unique for that year
       playerMat <- unique(playerMat)
-      table(playerMat[, 1], useNA="ifany")
+#       if(any(names(table(playerMat[, 1], useNA="ifany"))=="NA")) {
+#         warning(paste(upcase(team), year, ":Some player positions missing"))
+#       }
       
       output <- paste0(toupper(team),"_", year, "_roster.RData")
       save(playerMat, file=output)
     }
-    print(paste("1 year takes", round((proc.time()[3] - start)/60, 3), "minutes"))
+    print(paste(year, "took", round((proc.time()[3] - start)/60, 3), "minutes"))
   }
   
   
