@@ -18,7 +18,11 @@ game_index <- function(year){
   return(playindex)
 }
 
+startyear <- 1994;  endyear <- 2014;
+
 for (year in startyear:endyear) {
+  start <- proc.time()[3]
+  
   # get all play indexes for current year
   gamelist <- game_index(year)
   
@@ -30,7 +34,8 @@ for (year in startyear:endyear) {
     game <- gamelist[i]
     
     #load home team roster
-    setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
+   # setwd("C:/Users/Graham/Desktop/SportsAnalytics/rosters")
+    setwd("S:/Desktop/GitHub/NCSU-NFLpasstargets-2015/Rosters")
     home <- toupper(substr(game, nchar(game)-2, nchar(game)))
     home <- ifelse (home %in% c("HOU", "IND", "ARI", "STL", "OAK", "BAL", "TEN"),
                     if (home == "HOU" && year<2002) {
@@ -55,7 +60,7 @@ for (year in startyear:endyear) {
     
     #file <- paste0(toupper(substr(game, nchar(game)-2, nchar(game))), "_", 
                    #year, "_roster.RData")
-    file <- paste0(home, "_", year, "_roster.Rdata")
+    file <- paste0(home, "_", year, "_roster.RData")
     
     load(file)
     roster <- playerMat
@@ -79,7 +84,7 @@ for (year in startyear:endyear) {
     df <- tables[[which(flag==1)]]
     # get only tgts, rec, yds...
     titles<-colnames(df)
-    use <- which(test=='Tgt')
+    use <- which(titles=='Tgt')
     if (prod(titles[use:(use+2)]!=c('Tgt','Rec','Yds'))) {
       stop('incorrectcols')
     }
@@ -96,7 +101,7 @@ for (year in startyear:endyear) {
       next
     }
     
-    #remove QBs
+    #remove QBs - also removes RBs if they had no targets
     finaltab <- finaltab[which(finaltab[,3]!=""),]
     colnames(finaltab)[1] <- "Name"
     
@@ -129,7 +134,7 @@ for (year in startyear:endyear) {
         #              away <- "CLT"
          #           }, away)
     
-    file <- paste0(away, "_", year, "_roster.Rdata")
+    file <- paste0(away, "_", year, "_roster.RData")
     
     load(file)
     roster <- rbind(playerMat, roster)
@@ -152,7 +157,28 @@ for (year in startyear:endyear) {
   targets.allgames <- Reduce("rbind", targets)
   
   # Save the data for the year
-  file <- paste0("C:/Users/Graham/Desktop/SportsAnalytics/Targets_", year,
-                 ".RData")
+#   file <- paste0("C:/Users/Graham/Desktop/SportsAnalytics/Targets_", year,
+#                  ".RData")
+  file <- paste0("../Targets/Targets_", year, ".RData")
   save(targets.allgames, file=file)
+  
+  print(paste(year, "took", round((proc.time()[3] - start)/60, 3), "minutes"))
 }
+
+rm(list=setdiff(ls(), list("startyear", "endyear")))
+
+setwd("../Targets")
+allyears <- list()
+sink("MissingPlayers.txt")
+for (i in 1:length(startyear:endyear)) {
+  load(paste0("Targets_", (startyear:endyear)[i], ".RData"))
+  if(any(is.na(targets.allgames$Pos))) { 
+    print(paste("Some positions missing in", (startyear:endyear)[i]))
+    print(targets.allgames[which(is.na(targets.allgames$Pos)), ])
+  }
+  allyears[[i]] <- targets.allgames
+  rm(targets.allgames)
+}
+sink()
+targets.allyears <- Reduce("rbind", allyears)
+save(targets.allyears, file="Targets_AllYears.RData")
